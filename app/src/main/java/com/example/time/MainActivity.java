@@ -1,11 +1,12 @@
 package com.example.time;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,28 +17,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //--- WebView Setup ---//
         myWebView = findViewById(R.id.webView);
         WebSettings webSettings = myWebView.getSettings();
-        webSettings.setJavaScriptEnabled(true); // Enable JavaScript if your HTML uses it
+        webSettings.setJavaScriptEnabled(true); // Enable JavaScript
+        webSettings.setDomStorageEnabled(true);   // Enable DOM Storage
 
-        // Optional: Enable DOM storage for local storage, etc.
-        webSettings.setDomStorageEnabled(true);
-
-        // Optional: Set a WebViewClient to handle redirects within the WebView
+        // This ensures that links you click inside the WebView open within the WebView itself
         myWebView.setWebViewClient(new WebViewClient());
 
-        // Load your HTML file from the assets folder
-        // Replace "your_html_folder_name/index.html" with the correct path
+        // Load your local HTML file from the 'assets' folder
         myWebView.loadUrl("file:///android_asset/index.html");
-    }
 
-    // Optional: Handle back button press to navigate WebView history
-    @Override
-    public void onBackPressed() {
-        if (myWebView.canGoBack()) {
-            myWebView.goBack();
-        } else {
-            super.onBackPressed();
-        }
+
+        //--- Back Button Press Handling ---//
+        // This code correctly handles the back button for WebView navigation.
+        // It must be placed inside a method like onCreate().
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // If the WebView can go back, it will.
+                if (myWebView.canGoBack()) {
+                    myWebView.goBack();
+                } else {
+                    // Otherwise, the activity will be finished (closed).
+                    finish();
+                }
+            }
+        });
     }
 }
