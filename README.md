@@ -79,7 +79,7 @@ If you have a suggestion that would make this better, please fork the repo and c
 
 ## Download APK
 
-You can download the latest release APK from the Releases page and install it directly on your Android device.
+You can download the latest release APK from the [Releases page](https://github.com/0YogeshKumar/FlowTimer-App/releases) and install it directly on your Android device.
 
 ---
 
