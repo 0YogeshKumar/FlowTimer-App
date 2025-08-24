@@ -77,6 +77,19 @@ If you have a suggestion that would make this better, please fork the repo and c
 
 ---
 
+## Download APK
+
+You can download the latest release APK from the Releases page and install it directly on your Android device.
+
+---
+
+## 📞 Support
+
+If you have any questions or need help:
+Email: ykhmutt0804@gmail.com
+
+---
+
 ## 📝 License
 
 This project is currently unlicensed. You are free to fork, modify, and use it as you see fit.
