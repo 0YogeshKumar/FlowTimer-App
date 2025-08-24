@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowTimer - Interval Timer for Yoga & Workouts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .timer-display {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .timer-mode {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .timer-time {
+            font-size: 4rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .settings {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .settings h3 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 15px;
+        }
+
+        .cycle-count {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .timer-time {
+                font-size: 3.5rem;
+            }
+            
+            .btn {
+                padding: 12px 15px;
+                font-size: 1rem;
+            }
+        }
+
+        .work-mode {
+            color: #4facfe;
+        }
+
+        .rest-mode {
+            color: #00f2fe;
+        }
+
+        .paused-mode {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>FlowTimer</h1>
+            <p>Your interval companion for yoga & workouts</p>
+        </div>
+
+        <div class="timer-display">
+            <div class="timer-mode" id="timerMode">Ready</div>
+            <div class="timer-time" id="timerDisplay">00:00</div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn">Start</button>
+            <button class="btn btn-secondary" id="pauseBtn" disabled>Pause</button>
+            <button class="btn btn-secondary" id="resetBtn" disabled>Reset</button>
+        </div>
+
+        <div class="settings">
+            <h3>Timer Settings</h3>
+            <div class="input-group">
+                <label for="workDuration">Work Duration (seconds)</label>
+                <input type="number" id="workDuration" min="1" max="3600" value="60" placeholder="Work time">
+            </div>
+            <div class="input-group">
+                <label for="restDuration">Rest Duration (seconds)</label>
+                <input type="number" id="restDuration" min="1" max="600" value="10" placeholder="Rest time">
+            </div>
+        </div>
+
+        <div class="cycle-count" id="cycleCount">
+            Cycles Completed: 0
+        </div>
+
+        <div class="status" id="status">
+            Ready to start your session
+        </div>
+    </div>
+
+    <script>
+        class FlowTimer {
+            constructor() {
+                this.workDuration = 60;
+                this.restDuration = 10;
+                this.currentTime = 0;
+                this.isRunning = false;
+                this.isWorkMode = true;
+                this.intervalId = null;
+                this.cyclesCompleted = 0;
+                
+                this.initializeElements();
+                this.initializeEventListeners();
+                this.updateDisplay();
+            }
+
+            initializeElements() {
+                this.timerDisplay = document.getElementById('timerDisplay');
+                this.timerMode = document.getElementById('timerMode');
+                this.startBtn = document.getElementById('startBtn');
+                this.pauseBtn = document.getElementById('pauseBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.workDurationInput = document.getElementById('workDuration');
+                this.restDurationInput = document.getElementById('restDuration');
+                this.cycleCount = document.getElementById('cycleCount');
+                this.status = document.getElementById('status');
+            }
+
+            initializeEventListeners() {
+                this.startBtn.addEventListener('click', () => this.start());
+                this.pauseBtn.addEventListener('click', () => this.pause());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                
+                this.workDurationInput.addEventListener('change', (e) => {
+                    this.workDuration = parseInt(e.target.value) || 60;
+                    if (!this.isRunning) this.updateDisplay();
+                });
+                
+                this.restDurationInput.addEventListener('change', (e) => {
+                    this.restDuration = parseInt(e.target.value) || 10;
+                });
+            }
+
+            start() {
+                if (this.isRunning) return;
+                
+                this.isRunning = true;
+                this.updateButtonStates();
+                
+                if (this.currentTime === 0) {
+                    this.currentTime = this.isWorkMode ? this.workDuration : this.restDuration;
+                }
+
+                this.intervalId = setInterval(() => this.tick(), 1000);
+                this.status.textContent = 'Timer running...';
+            }
+
+            pause() {
+                if (!this.isRunning) return;
+                
+                this.isRunning = false;
+                clearInterval(this.intervalId);
+                this.updateButtonStates();
+                this.status.textContent = 'Timer paused';
+            }
+
+            reset() {
+                this.isRunning = false;
+                clearInterval(this.intervalId);
+                this.currentTime = 0;
+                this.isWorkMode = true;
+                this.cyclesCompleted = 0;
+                this.updateDisplay();
+                this.updateButtonStates();
+                this.status.textContent = 'Timer reset - Ready to start';
+            }
+
+            tick() {
+                this.currentTime--;
+                
+                if (this.currentTime <= 0) {
+                    this.switchMode();
+                }
+                
+                this.updateDisplay();
+            }
+
+            switchMode() {
+                if (this.isWorkMode) {
+                    // Switching from work to rest
+                    this.isWorkMode = false;
+                    this.currentTime = this.restDuration;
+                    this.playNotificationSound();
+                    this.vibrate();
+                    this.status.textContent = 'Rest time! Take a break';
+                } else {
+                    // Switching from rest to work
+                    this.isWorkMode = true;
+                    this.currentTime = this.workDuration;
+                    this.cyclesCompleted++;
+                    this.playNotificationSound();
+                    this.vibrate();
+                    this.status.textContent = 'Work time! Get ready';
+                }
+            }
+
+            playNotificationSound() {
+                // Create a simple notification sound
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (error) {
+                    console.log('Audio not supported:', error);
+                }
+            }
+
+            vibrate() {
+                // Try to vibrate if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
+
+            updateDisplay() {
+                const minutes = Math.floor(this.currentTime / 60);
+                const seconds = this.currentTime % 60;
+                this.timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (this.isRunning) {
+                    this.timerMode.textContent = this.isWorkMode ? 'WORK' : 'REST';
+                    this.timerMode.className = 'timer-mode ' + (this.isWorkMode ? 'work-mode' : 'rest-mode');
+                } else {
+                    this.timerMode.textContent = this.currentTime === 0 ? 'READY' : 'PAUSED';
+                    this.timerMode.className = 'timer-mode ' + (this.currentTime === 0 ? '' : 'paused-mode');
+                }
+                
+                this.cycleCount.textContent = `Cycles Completed: ${this.cyclesCompleted}`;
+            }
+
+            updateButtonStates() {
+                this.startBtn.disabled = this.isRunning;
+                this.pauseBtn.disabled = !this.isRunning;
+                this.resetBtn.disabled = !this.isRunning && this.currentTime === 0;
+            }
+
+            getCurrentState() {
+                return {
+                    workDuration: this.workDuration,
+                    restDuration: this.restDuration,
+                    currentTime: this.currentTime,
+                    isRunning: this.isRunning,
+                    isWorkMode: this.isWorkMode,
+                    cyclesCompleted: this.cyclesCompleted
+                };
+            }
+        }
+
+        // Initialize the timer when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const timer = new FlowTimer();
+            
+            // Handle visibility change for basic background functionality
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    console.log('App is running in background');
+                    // In a real app, you'd use service workers for proper background functionality
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
